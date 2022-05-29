@@ -61,6 +61,6 @@ runs:
       shell: "bash"
 
     - name: "Custom bash shell command"
-      if: "${{ input.custom-shell-command !== 0}}"
+      if: ${{ input.custom-shell-command !== 0 }}
       run: "${{ input.custom-shell-command }}"
       shell: "bash"    
