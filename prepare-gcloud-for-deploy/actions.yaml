@@ -22,7 +22,7 @@ runs:
     steps:
     - id: 'checkout'
       uses: actions/checkout@v3
- 
+
     - id: 'auth'
       uses: 'google-github-actions/auth@v0'
       with:
@@ -38,7 +38,7 @@ runs:
     - name: Delete .env file if exists
       run: "rm -fr .env"
       shell: "bash"
- 
+
     - name: Get secret from Google Secrets
       run: echo "${{ steps.secrets.outputs.body }}" > .env
       shell: "bash"
