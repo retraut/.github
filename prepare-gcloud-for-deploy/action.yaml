@@ -15,6 +15,9 @@ inputs:
   gcp-base64-secret-name:
     required: true
     description: "Google Secret Manager secret name with base64 config"
+  custom-shell-command:
+    required: false
+    description: "Run custom shell command after prepare"
 
 runs:
   using: "composite"
@@ -56,3 +59,8 @@ runs:
 
     - run: stat .env
       shell: "bash"
+
+    - name: "Custom bash shell command"
+      if: ${{ inputs.custom-shell-command != 0 }}
+      run: "${{ inputs.custom-shell-command }}"
+      shell: "bash"    
