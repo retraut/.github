@@ -15,6 +15,9 @@ inputs:
   gcp-base64-secret-name:
     required: true
     description: "Google Secret Manager secret name with base64 config"
+  db-instance:
+    required: false
+    description: "Database instance to connect with Google Cloud SQL Proxy"
   custom-shell-command:
     required: false
     description: "Run custom shell command after prepare"
@@ -59,6 +62,13 @@ runs:
 
     - run: stat .env
       shell: "bash"
+
+    - name: Setup Google Cloud SQL Proxy
+      if: ${{ inputs.db-instance != 0 }}
+      uses: mattes/gce-cloudsql-proxy-action@v1
+      with:
+        creds: ${{ inputs.gcp-sa-key }}
+        instance: ${{ inputs.db-instance }}
 
     - name: "Custom bash shell command"
       if: ${{ inputs.custom-shell-command != 0 }}
