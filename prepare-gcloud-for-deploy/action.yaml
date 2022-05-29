@@ -15,6 +15,9 @@ inputs:
   gcp-base64-secret-name:
     required: true
     description: "Google Secret Manager secret name with base64 config"
+  gcp-app-engine-config-name:
+    required: false
+    description: "Deploy project to Google AppEngine with config"
   db-instance:
     required: false
     description: "Database instance to connect with Google Cloud SQL Proxy"
@@ -74,3 +77,10 @@ runs:
       if: ${{ inputs.custom-shell-command != 0 }}
       run: "${{ inputs.custom-shell-command }}"
       shell: "bash"    
+
+    - name: 'Deploy to App Engine'
+      if: ${{ inputs.gcp-app-engine-config-name != 0 }}
+      uses: 'google-github-actions/deploy-appengine@v0'
+      with:
+        deliverables: "${{ inputs.gcp-app-engine-config-name }}"
+        promote: true
