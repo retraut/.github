@@ -17,13 +17,13 @@ inputs:
     description: "Google Secret Manager secret name with base64 config"
   gcp-app-engine-config-name:
     required: false
-    description: "Deploy project to Google AppEngine with config"
+    description: "Deploy project to Google AppEngine with config. This input trigger step: appengine-deploy"
   db-instance:
     required: false
-    description: "Database instance to connect with Google Cloud SQL Proxy"
+    description: "Database instance to connect with Google Cloud SQL Proxy. This input trigger step: setup-cloudsql-proxy"
   custom-shell-command:
     required: false
-    description: "Run custom shell command after prepare"
+    description: "Run custom shell command after prepare. This input trigger step : custom-shell-command"
 
 runs:
   using: "composite"
@@ -67,6 +67,7 @@ runs:
       shell: "bash"
 
     - name: Setup Google Cloud SQL Proxy
+      id: 'setup-cloudsql-proxy'
       if: ${{ inputs.db-instance != 0 }}
       uses: mattes/gce-cloudsql-proxy-action@v1
       with:
@@ -74,11 +75,13 @@ runs:
         instance: "${{ inputs.db-instance }}"
 
     - name: "Custom bash shell command"
+      id: 'custom-shell-command'
       if: ${{ inputs.custom-shell-command != 0 }}
       run: "${{ inputs.custom-shell-command }}"
       shell: "bash"    
 
     - name: 'Deploy to App Engine'
+      id: 'appengine-deploy'
       if: ${{ inputs.gcp-app-engine-config-name != 0 }}
       uses: 'google-github-actions/deploy-appengine@v0'
       with:
