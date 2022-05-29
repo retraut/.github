@@ -39,14 +39,20 @@ runs:
       run: "rm -fr .env"
       shell: "bash"
 
+    - name: Create .env file
+      run: "touch .env"
+      shell: "bash"
+
     - name: Get secret from Google Secrets
       run: echo "${{ steps.secrets.outputs.body }}" > .env
       shell: "bash"
 
-    - run: stat .env
+    - run: "stat .env"
+      shell: "bash"
 
     - name: Get base64-encoded from Google Secrets
       run : echo "${{ steps.secrets.outputs.base64body }}" | base64 -d >> .env
       shell: "bash"
 
     - run: stat .env
+      shell: "bash"
