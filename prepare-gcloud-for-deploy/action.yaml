@@ -67,8 +67,8 @@ runs:
       if: ${{ inputs.db-instance != 0 }}
       uses: mattes/gce-cloudsql-proxy-action@v1
       with:
-        creds: ${{ inputs.gcp-sa-key }}
-        instance: ${{ inputs.db-instance }}
+        creds: "${{ inputs.gcp-sa-key }}"
+        instance: "${{ inputs.db-instance }}"
 
     - name: "Custom bash shell command"
       if: ${{ inputs.custom-shell-command != 0 }}
