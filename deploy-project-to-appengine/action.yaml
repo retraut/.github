@@ -13,7 +13,7 @@ inputs:
     required: true
     description: "Google Secret Manager secret name with Plain config"
   gcp-base64-secret-name:
-    required: true
+    required: false
     description: "Google Secret Manager secret name with base64 config"
   gcp-app-engine-config-name:
     required: false
