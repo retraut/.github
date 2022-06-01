@@ -63,13 +63,13 @@ runs:
       run: echo "${{ steps.secrets-plain.outputs.body }}" >> ${{ inputs.env-variables-config-file }}
       shell: "bash"
 
-    - name: Get base64-encoded from Google Secrets to environement file
+    - name: Get base64-encoded from Google Secrets to separate file
       if: ${{ inputs.gcp-base64-secret-name != 0  && inputs.env-variables-base64-config-file != 0 }}
       run : echo "${{ steps.secrets-base64.outputs.base64body }}" | base64 -d >> ${{ inputs.env-variables-base64-config-file }}
       shell: "bash"
 
-    - name: Get base64-encoded from Google Secrets to separate file
-      if: ${{ inputs.gcp-base64-secret-name != 0 }}
+    - name: Get base64-encoded from Google Secrets to .env file
+      if: ${{ inputs.gcp-base64-secret-name != 0  && inputs.env-variables-base64-config-file == 0 }}
       run : echo "${{ steps.secrets-base64.outputs.base64body }}" | base64 -d >> ${{ inputs.env-variables-config-file }}
       shell: "bash"
 
