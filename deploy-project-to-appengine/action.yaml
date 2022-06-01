@@ -37,11 +37,18 @@ runs:
       with:
         credentials_json: '${{ inputs.gcp-sa-key }}'
 
-    - id: 'secrets'
+    - id: 'secrets-plain'
+      if: ${{ inputs.gcp-plain-secret-name != 0 }}
       uses: 'google-github-actions/get-secretmanager-secrets@v0'
       with:
         secrets: |-
           body:projects/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-plain-secret-name }}
+
+    - id: 'secrets-base64'
+      if: ${{ inputs.gcp-base64-secret-name != 0 }}
+      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      with:
+        secrets: |-
           base64body:project/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-base64-secret-name }}
 
     - name: Delete .env file if exists
@@ -53,14 +60,14 @@ runs:
       shell: "bash"
 
     - name: Get secret from Google Secrets
-      run: echo "${{ steps.secrets.outputs.body }}" > .env
+      run: echo "${{ steps.secrets-plain.outputs.body }}" > .env
       shell: "bash"
 
     - run: "stat .env"
       shell: "bash"
 
     - name: Get base64-encoded from Google Secrets
-      run : echo "${{ steps.secrets.outputs.base64body }}" | base64 -d >> .env
+      run : echo "${{ steps.secrets-base64.outputs.base64body }}" | base64 -d >> .env
       shell: "bash"
 
     - run: stat .env
