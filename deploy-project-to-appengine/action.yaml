@@ -25,9 +25,6 @@ inputs:
     required: false
     default: ".env"
     description: "Use this var for your secret storing"
-  env-variables-base64-config-file:
-    required: false
-    description: "Use this var to dump base64 secret to separate file"
   db-instance:
     required: false
     description: "Database instance to connect with Google Cloud SQL Proxy. This input trigger step: setup-cloudsql-proxy"
@@ -62,13 +59,13 @@ runs:
           base64body:project/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-base64-secret-name }}
 
     # Plain secret dump to env-variables-config-file
-    #
+    
     - name: Get secret from Google Secrets to env-variables-config-file
       if: ${{ inputs.gcp-plain-secret-name != 0 }}
       run: echo "${{ steps.secrets-plain.outputs.body }}" >> ${{ inputs.env-variables-config-file }}
       shell: "bash"
 
-    # Dump base64 secret to .env file or app-dev.yaml
+    # Dump base64 secret to .env file
 
     - name: Get base64-encoded from Google Secrets to env-variables-config-file 
       if: ${{ inputs.gcp-base64-secret-name != 0  && inputs.env-variables-base64-config-file == 0 }}
