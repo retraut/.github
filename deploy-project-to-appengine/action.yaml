@@ -3,7 +3,7 @@ name: Prepare project
 description: "Clone repo, get configs for project"
 
 inputs:
-  gcp-sa-key:
+  gcp-key:
     required: true
     description: "Google Credentials Secret for performing actions"
   gcp-project-id:
@@ -13,11 +13,15 @@ inputs:
     required: true
     description: "Google Secret Manager secret name with Plain config"
   gcp-base64-secret-name:
-    required: true
+    required: false
     description: "Google Secret Manager secret name with base64 config"
   gcp-app-engine-config-name:
     required: false
     description: "Deploy project to Google AppEngine with config. This input trigger step: appengine-deploy"
+  env-variables-config-file:
+    required: false
+    default: ".env"
+    description: "Use this var for your secret storing"
   db-instance:
     required: false
     description: "Database instance to connect with Google Cloud SQL Proxy. This input trigger step: setup-cloudsql-proxy"
@@ -29,41 +33,32 @@ runs:
   using: "composite"
 
   steps:
-    - name: "Checkout repository"
-      uses: "actions/checkout@v3"
-
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v0'
-      with:
-        credentials_json: '${{ inputs.gcp-sa-key }}'
-
-    - id: 'secrets'
+    - id: 'secrets-plain'
+      if: ${{ inputs.gcp-plain-secret-name != 0 }}
       uses: 'google-github-actions/get-secretmanager-secrets@v0'
       with:
         secrets: |-
           body:projects/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-plain-secret-name }}
+
+    - id: 'secrets-base64'
+      if: ${{ inputs.gcp-base64-secret-name != 0 }}
+      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      with:
+        secrets: |-
           base64body:project/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-base64-secret-name }}
 
-    - name: Delete .env file if exists
-      run: "rm -fr .env"
+    # Plain secret dump to env-variables-config-file
+    
+    - name: Get secret from Google Secrets to env-variables-config-file
+      if: ${{ inputs.gcp-plain-secret-name != 0 }}
+      run: echo "${{ steps.secrets-plain.outputs.body }}" >> ${{ inputs.env-variables-config-file }}
       shell: "bash"
 
-    - name: Create .env file
-      run: "touch .env"
-      shell: "bash"
+    # Dump base64 secret to .env file
 
-    - name: Get secret from Google Secrets
-      run: echo "${{ steps.secrets.outputs.body }}" > .env
-      shell: "bash"
-
-    - run: "stat .env"
-      shell: "bash"
-
-    - name: Get base64-encoded from Google Secrets
-      run : echo "${{ steps.secrets.outputs.base64body }}" | base64 -d >> .env
-      shell: "bash"
-
-    - run: stat .env
+    - name: Get base64-encoded from Google Secrets to env-variables-config-file 
+      if: ${{ inputs.gcp-base64-secret-name != 0  && inputs.env-variables-base64-config-file == 0 }}
+      run : echo "${{ steps.secrets-base64.outputs.base64body }}" | base64 -d >> ${{ inputs.env-variables-config-file }}
       shell: "bash"
 
     - name: Setup Google Cloud SQL Proxy
@@ -71,7 +66,7 @@ runs:
       if: ${{ inputs.db-instance != 0 }}
       uses: mattes/gce-cloudsql-proxy-action@v1
       with:
-        creds: "${{ inputs.gcp-sa-key }}"
+        creds: "${{ inputs.gcp-key }}"
         instance: "${{ inputs.db-instance }}"
 
     - name: "Custom bash shell command"
