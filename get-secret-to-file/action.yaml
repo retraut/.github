@@ -1,0 +1,44 @@
+name: Prepare project
+
+description: "Clone repo, get configs for project"
+
+inputs:
+  gcp-key-base64:
+    required: true
+    description: "Google Credentials Secret for performing actions base64 format"
+  gcp-project-id:
+    required: true
+    description: "Google Project ID"
+  gcp-base64-secret-name:
+    required: false
+    description: "Google Secret Manager secret name with base64 config"
+  file:
+    required: false
+    default: ".env"
+    description: "Use this var for your secret storing"
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: "Checkout repository"
+      uses: "actions/checkout@v3"
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v0'
+      with:
+        credentials_json: '${{ inputs.gcp-key-base64 }}'
+
+    - id: 'secrets-base64'
+      if: ${{ inputs.gcp-base64-secret-name != 0 }}
+      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      with:
+        secrets: |-
+          base64body:project/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-base64-secret-name }}
+
+    # Dump base64 secret to file
+
+    - name: Get base64-encoded from Google Secrets to file
+      if: ${{ inputs.gcp-base64-secret-name != 0  && inputs.env-variables-base64-config-file == 0 }}
+      run : echo "${{ steps.secrets-base64.outputs.base64body }}" | base64 -d >> ${{ inputs.file }}
+      shell: "bash"
