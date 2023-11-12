@@ -1,0 +1,6 @@
+name: 'Put Data from Secret Manager to file'
+description: 'Get data from secret manager and put into the file'
+
+runs:
+  using: 'node20'
+  main: 'action.js'
