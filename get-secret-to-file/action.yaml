@@ -22,16 +22,16 @@ runs:
 
   steps:
     - name: "Checkout repository"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
 
     - id: 'auth'
-      uses: 'google-github-actions/auth@v0'
+      uses: 'google-github-actions/auth@v2'
       with:
         credentials_json: '${{ inputs.gcp-key-base64 }}'
 
     - id: 'secrets-base64'
       if: ${{ inputs.gcp-base64-secret-name != 0 }}
-      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      uses: 'google-github-actions/get-secretmanager-secrets@v2'
       with:
         secrets: |-
           base64body:project/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-base64-secret-name }}
