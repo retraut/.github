@@ -35,14 +35,14 @@ runs:
   steps:
     - id: 'secrets-plain'
       if: ${{ inputs.gcp-plain-secret-name != 0 }}
-      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      uses: 'google-github-actions/get-secretmanager-secrets@v2'
       with:
         secrets: |-
           body:projects/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-plain-secret-name }}
 
     - id: 'secrets-base64'
       if: ${{ inputs.gcp-base64-secret-name != 0 }}
-      uses: 'google-github-actions/get-secretmanager-secrets@v0'
+      uses: 'google-github-actions/get-secretmanager-secrets@v2'
       with:
         secrets: |-
           base64body:project/${{ inputs.gcp-project-id }}/secrets/${{ inputs.gcp-base64-secret-name }}
@@ -78,7 +78,7 @@ runs:
     - name: 'Deploy to App Engine'
       id: 'appengine-deploy'
       if: ${{ inputs.gcp-app-engine-config-name != 0 }}
-      uses: 'google-github-actions/deploy-appengine@v0'
+      uses: 'google-github-actions/deploy-appengine@v2'
       with:
         deliverables: "${{ inputs.gcp-app-engine-config-name }}"
         promote: true
